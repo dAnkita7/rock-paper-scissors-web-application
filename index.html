@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image:url("images_front.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    .game-bg {
+      background-image: url("new_background.png"); /* Specify the path to your new background image */
+    }
+    h1 {
+      margin-top: 60px;
+      font-size: 60px;
+      color: aliceblue;
+      text-align: center;
+    }
+    h3 {
+      margin-top: 340px;
+      font-size: 30px;
+      color: rgb(69, 243, 147);
+      text-align: center;
+    }
+    .welcome-animation {
+      animation: fade-in 2s forwards;
+      opacity: 0;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .round-flash-animation {
+      animation: round-flash 2s forwards;
+      opacity: 0;
+    }
+    @keyframes round-flash {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .game-over-animation {
+      animation: game-over-flash 2s forwards;
+      opacity: 0;
+    }
+    @keyframes game-over-flash {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .choices {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .choices img {
+      width: 100px;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+      border-radius: 8px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    .choices img:hover {
+      transform: scale(1.1);
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 24px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
+      display: inline-block;
+    }
+    .result.show {
+      opacity: 1;
+    }
+    .result p {
+      margin-bottom: 10px;
+    }
+    .stats {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    #countdown {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+    #choices-container {
+      display: none;
+    }
+    #choices-container.show {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+    }
+    #user-choice,
+    #computer-choice {
+      width: 150px;
+    }
+    #user-choice img,
+    #computer-choice img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    #game-over {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 999;
+    }
+
+    input[type=number] {
+      width: 50px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div id="welcome" class="welcome-animation">
+    <h1>Welcome to Rock Paper Scissors game</h1>
+    <h3>
+      <label for="rounds">Choose number of rounds to play:</label>
+      <input type="number" id="rounds" name="rounds" min="1" value="1">
+      <button onclick="startGame()">Go</button>
+    </h3>
+  </div>
+  <div id="round-flash" class="round-flash-animation" style="display: none;"></div>
+  <div id="choices-container">
+    <div id="user-choice">
+      <h3>Your Choice</h3>
+      <img src="rock.png" alt="Rock" onclick="play('rock')">
+      <img src="paper.png" alt="Paper" onclick="play('paper')">
+      <img src="scissors.png" alt="Scissors" onclick="play('scissors')">
+    </div>
+    <div id="computer-choice">
+      <h3>Computer's Choice</h3>
+      <img src="" alt="">
+    </div>
+  </div>
+  <div class="result" id="result"></div>
+  <div class="stats" id="stats"></div>
+  <div id="countdown"></div>
+
+  <div id="game-over" class="game-over-animation" style="display: none;">
+    <h1>Game Over</h1>
+    <div class="stats" id="game-over-stats"></div>
+  </div>
+
+  <script>
+    let wins = 0;
+    let losses = 0;
+    let ties = 0;
+    let roundsLeft = 1;
+
+    function startGame() {
+      const welcome = document.getElementById('welcome');
+      const roundsInput = document.getElementById('rounds');
+      roundsLeft = parseInt(roundsInput.value);
+
+      welcome.style.display = 'none';
+      document.getElementById('round-flash').style.display = 'block';
+
+      setTimeout(() => {
+        document.getElementById('round-flash').style.display = 'none';
+        document.getElementById('choices-container').classList.add('show');
+        document.body.classList.add('game-bg'); // Add class to change background
+      }, 2000);
+    }
+
+    function play(userChoice) {
+      const choices = ['rock', 'paper', 'scissors'];
+      const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+      const result = document.getElementById('result');
+      const userChoiceImg = document.querySelector('#user-choice img');
+      const computerChoiceImg = document.querySelector('#computer-choice img');
+
+      userChoiceImg.src = `${userChoice}.png`;
+      computerChoiceImg.src = `${computerChoice}.png`;
+
+      document.getElementById('choices-container').classList.add('show');
+
+      setTimeout(() => {
+        let message;
+
+        if (roundsLeft > 0) {
+          if (userChoice === computerChoice) {
+            message = "It's a tie!";
+            ties++;
+          } else if ((userChoice === 'rock' && computerChoice === 'scissors') ||
+                     (userChoice === 'paper' && computerChoice === 'rock') ||
+                     (userChoice === 'scissors' && computerChoice === 'paper')) {
+            message = "You win!";
+            wins++;
+          } else {
+            message = "You lose!";
+            losses++;
+          }
+
+          result.innerHTML = `<p>You chose <strong>${userChoice}</strong>. The computer chose <strong>${computerChoice}</strong>.</p><p>${message}</p>`;
+          result.classList.add('show');
+
+          updateStats();
+
+          const roundsInput = document.getElementById('rounds');
+          roundsInput.disabled = true;
+
+          startCountdown();
+          roundsLeft--;
+        }
+
+        if (roundsLeft === 0) {
+          setTimeout(() => {
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('game-over').classList.add('game-over-animation');
+            document.getElementById('game-over-stats').innerHTML = `Wins: ${wins}, Losses: ${losses}, Ties: ${ties}`; // Show stats in game over message
+            setTimeout(() => {
+              window.location.href = window.location.href; // Redirect to the main page after 3 seconds
+            }, 3000);
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    function updateStats() {
+      const stats = document.getElementById('stats');
+      stats.innerHTML = `Wins: ${wins}, Losses: ${losses}, Ties: ${ties}`;
+    }
+
+    function startCountdown() {
+      let countdown = 3;
+      const countdownElement = document.getElementById('countdown');
+      countdownElement.textContent = countdown;
+
+      const countdownInterval = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('result').classList.remove('show');
+          const roundsInput = document.getElementById('rounds');
+          roundsInput.disabled = false;
+          roundsInput.value--;
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
